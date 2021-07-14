@@ -8,10 +8,12 @@
 
 use std::fmt;
 use std::io::{self, Read, Write};
-#[cfg(not(target_os = "redox"))]
+#[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
 use std::io::{IoSlice, IoSliceMut};
 use std::mem::MaybeUninit;
 use std::net::{self, Ipv4Addr, Ipv6Addr, Shutdown};
+#[cfg(target_os = "solid_asp3")]
+use std::os::solid::io::{FromRawFd, IntoRawFd};
 #[cfg(unix)]
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 #[cfg(windows)]
@@ -20,7 +22,7 @@ use std::time::Duration;
 
 use crate::sys::{self, c_int, getsockopt, setsockopt, Bool};
 use crate::{Domain, Protocol, SockAddr, TcpKeepalive, Type};
-#[cfg(not(target_os = "redox"))]
+#[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
 use crate::{MaybeUninitSlice, RecvFlags};
 
 /// Owned wrapper around a system socket.
@@ -433,8 +435,11 @@ impl Socket {
     /// Note that the [`io::Read::read_vectored`] implementation calls this
     /// function with `buf`s of type `&mut [IoSliceMut]`, allowing initialised
     /// buffers to be used without using `unsafe`.
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn recv_vectored(
         &self,
         bufs: &mut [MaybeUninitSlice<'_>],
@@ -453,8 +458,11 @@ impl Socket {
     /// as [`recv_vectored`].
     ///
     /// [`recv_vectored`]: Socket::recv_vectored
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn recv_vectored_with_flags(
         &self,
         bufs: &mut [MaybeUninitSlice<'_>],
@@ -517,8 +525,11 @@ impl Socket {
     /// as [`recv_vectored`].
     ///
     /// [`recv_vectored`]: Socket::recv_vectored
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn recv_from_vectored(
         &self,
         bufs: &mut [MaybeUninitSlice<'_>],
@@ -537,8 +548,11 @@ impl Socket {
     /// as [`recv_vectored`].
     ///
     /// [`recv_vectored`]: Socket::recv_vectored
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn recv_from_vectored_with_flags(
         &self,
         bufs: &mut [MaybeUninitSlice<'_>],
@@ -584,8 +598,11 @@ impl Socket {
     }
 
     /// Send data to the connected peer. Returns the amount of bytes written.
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn send_vectored(&self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
         self.send_vectored_with_flags(bufs, 0)
     }
@@ -594,8 +611,11 @@ impl Socket {
     /// flags to the underlying `sendmsg`/`WSASend` call.
     ///
     /// [`send_vectored`]: Socket::send_vectored
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn send_vectored_with_flags(
         &self,
         bufs: &[IoSlice<'_>],
@@ -638,8 +658,11 @@ impl Socket {
 
     /// Send data to a peer listening on `addr`. Returns the amount of bytes
     /// written.
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn send_to_vectored(&self, bufs: &[IoSlice<'_>], addr: &SockAddr) -> io::Result<usize> {
         self.send_to_vectored_with_flags(bufs, addr, 0)
     }
@@ -648,8 +671,11 @@ impl Socket {
     /// arbitrary flags to the underlying `sendmsg`/`WSASendTo` call.
     ///
     /// [`send_to_vectored`]: Socket::send_to_vectored
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn send_to_vectored_with_flags(
         &self,
         bufs: &[IoSlice<'_>],
@@ -819,8 +845,11 @@ impl Socket {
     /// For more information about this option, see [`set_out_of_band_inline`].
     ///
     /// [`set_out_of_band_inline`]: Socket::set_out_of_band_inline
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn out_of_band_inline(&self) -> io::Result<bool> {
         unsafe {
             getsockopt::<c_int>(self.as_raw(), sys::SOL_SOCKET, sys::SO_OOBINLINE)
@@ -834,8 +863,11 @@ impl Socket {
     /// receive data stream. Otherwise, out-of-band data is passed only when the
     /// `MSG_OOB` flag is set during receiving. As per RFC6093, TCP sockets
     /// using the Urgent mechanism are encouraged to set this flag.
-    #[cfg(not(target_os = "redox"))]
-    #[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+    #[cfg_attr(
+        docsrs,
+        doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+    )]
     pub fn set_out_of_band_inline(&self, oob_inline: bool) -> io::Result<()> {
         unsafe {
             setsockopt(
@@ -1590,7 +1622,7 @@ impl Read for Socket {
         self.recv(buf)
     }
 
-    #[cfg(not(target_os = "redox"))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
     fn read_vectored(&mut self, bufs: &mut [IoSliceMut<'_>]) -> io::Result<usize> {
         // Safety: both `IoSliceMut` and `MaybeUninitSlice` promise to have the
         // same layout, that of `iovec`/`WSABUF`. Furthermore `recv_vectored`
@@ -1608,7 +1640,7 @@ impl<'a> Read for &'a Socket {
         self.recv(buf)
     }
 
-    #[cfg(not(target_os = "redox"))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
     fn read_vectored(&mut self, bufs: &mut [IoSliceMut<'_>]) -> io::Result<usize> {
         // Safety: see other `Read::read` impl.
         let bufs = unsafe { &mut *(bufs as *mut [IoSliceMut<'_>] as *mut [MaybeUninitSlice<'_>]) };
@@ -1621,7 +1653,7 @@ impl Write for Socket {
         self.send(buf)
     }
 
-    #[cfg(not(target_os = "redox"))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
     fn write_vectored(&mut self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
         self.send_vectored(bufs)
     }
@@ -1636,7 +1668,7 @@ impl<'a> Write for &'a Socket {
         self.send(buf)
     }
 
-    #[cfg(not(target_os = "redox"))]
+    #[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
     fn write_vectored(&mut self, bufs: &[IoSlice<'_>]) -> io::Result<usize> {
         self.send_vectored(bufs)
     }

@@ -179,7 +179,7 @@ impl SockAddr {
                 ip,
                 port,
                 addr.sin6_flowinfo,
-                #[cfg(unix)]
+                #[cfg(any(unix, target_os = "solid_asp3"))]
                 addr.sin6_scope_id,
                 #[cfg(windows)]
                 unsafe {
@@ -227,6 +227,7 @@ impl From<SocketAddrV4> for SockAddr {
             sin_addr: crate::sys::to_in_addr(&addr.ip()),
             sin_zero: Default::default(),
             #[cfg(any(
+                target_os = "solid_asp3",
                 target_os = "dragonfly",
                 target_os = "freebsd",
                 target_os = "haiku",
@@ -261,11 +262,12 @@ impl From<SocketAddrV6> for SockAddr {
             sin6_port: addr.port().to_be(),
             sin6_addr: crate::sys::to_in6_addr(addr.ip()),
             sin6_flowinfo: addr.flowinfo(),
-            #[cfg(unix)]
+            #[cfg(any(unix, target_os = "solid_asp3"))]
             sin6_scope_id: addr.scope_id(),
             #[cfg(windows)]
             u,
             #[cfg(any(
+                target_os = "solid_asp3",
                 target_os = "dragonfly",
                 target_os = "freebsd",
                 target_os = "haiku",
@@ -291,6 +293,8 @@ impl From<SocketAddrV6> for SockAddr {
 impl fmt::Debug for SockAddr {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut f = fmt.debug_struct("SockAddr");
+        #[cfg(target_os = "solid_asp3")]
+        f.field("s2_len", &self.storage.s2_len);
         #[cfg(any(
             target_os = "dragonfly",
             target_os = "freebsd",
