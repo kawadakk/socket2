@@ -120,11 +120,8 @@ mod sockaddr;
 mod socket;
 mod sockref;
 
-#[cfg(unix)]
-#[path = "sys/unix.rs"]
-mod sys;
-#[cfg(windows)]
-#[path = "sys/windows.rs"]
+#[cfg_attr(unix, path = "sys/unix.rs")]
+#[cfg_attr(windows, path = "sys/windows.rs")]
 mod sys;
 #[cfg(target_os = "solid_asp3")]
 #[path = "sys/solid.rs"]
@@ -138,6 +135,15 @@ use sys::c_int;
 pub use sockaddr::SockAddr;
 pub use socket::Socket;
 pub use sockref::SockRef;
+
+#[cfg(not(any(
+    target_os = "haiku",
+    target_os = "illumos",
+    target_os = "netbsd",
+    target_os = "redox",
+    target_os = "solaris",
+)))]
+pub use socket::InterfaceIndexOrAddress;
 
 /// Specification of the communication domain for a socket.
 ///
@@ -292,10 +298,6 @@ impl RecvFlags {
 #[repr(transparent)]
 pub struct MaybeUninitSlice<'a>(sys::MaybeUninitSlice<'a>);
 
-unsafe impl<'a> Send for MaybeUninitSlice<'a> {}
-
-unsafe impl<'a> Sync for MaybeUninitSlice<'a> {}
-
 impl<'a> fmt::Debug for MaybeUninitSlice<'a> {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt::Debug::fmt(self.0.as_slice(), fmt)
@@ -333,9 +335,9 @@ impl<'a> DerefMut for MaybeUninitSlice<'a> {
 #[derive(Debug, Clone)]
 pub struct TcpKeepalive {
     time: Option<Duration>,
-    #[cfg_attr(target_os = "redox", allow(dead_code))]
+    #[cfg(not(any(target_os = "redox", target_os = "solaris")))]
     interval: Option<Duration>,
-    #[cfg_attr(target_os = "redox", allow(dead_code))]
+    #[cfg(not(any(target_os = "redox", target_os = "solaris", target_os = "windows")))]
     retries: Option<u32>,
 }
 
@@ -344,7 +346,9 @@ impl TcpKeepalive {
     pub const fn new() -> TcpKeepalive {
         TcpKeepalive {
             time: None,
+            #[cfg(not(any(target_os = "redox", target_os = "solaris")))]
             interval: None,
+            #[cfg(not(any(target_os = "redox", target_os = "solaris", target_os = "windows")))]
             retries: None,
         }
     }

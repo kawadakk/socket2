@@ -1,3 +1,4 @@
+#![allow(clippy::bool_assert_comparison)]
 #[cfg(all(
     feature = "all",
     any(
@@ -493,7 +494,7 @@ fn out_of_band() {
 
     let (receiver, _) = listener.accept().unwrap();
 
-    sender.send(&DATA).unwrap();
+    sender.send(DATA).unwrap();
 
     const FIRST: &[u8] = b"!";
     assert_eq!(sender.send_out_of_band(FIRST).unwrap(), FIRST.len());
@@ -1082,11 +1083,11 @@ macro_rules! test {
 
         let initial = socket.$get_fn().expect("failed to get initial value");
         let arg = $arg;
-        let expected = $expected;
         assert_ne!(initial, arg, "initial value and argument are the same");
 
         socket.$set_fn(arg).expect("failed to set option");
         let got = socket.$get_fn().expect("failed to get value");
+        let expected = $expected;
         assert_eq!(got, expected, "set and get values differ");
     };
 }
@@ -1136,6 +1137,21 @@ test!(
     mark,
     set_mark(123)
 );
+#[cfg(all(
+    feature = "all",
+    any(target_os = "android", target_os = "fuchsia", target_os = "linux")
+))]
+test!(cork, set_cork(true));
+#[cfg(all(
+    feature = "all",
+    any(target_os = "android", target_os = "fuchsia", target_os = "linux")
+))]
+test!(quickack, set_quickack(false));
+#[cfg(all(
+    feature = "all",
+    any(target_os = "android", target_os = "fuchsia", target_os = "linux")
+))]
+test!(thin_linear_timeouts, set_thin_linear_timeouts(true));
 test!(linger, set_linger(Some(Duration::from_secs(10))));
 test!(
     read_timeout,
@@ -1174,3 +1190,55 @@ test!(
     tcp_user_timeout,
     set_tcp_user_timeout(Some(Duration::from_secs(10)))
 );
+
+#[test]
+#[cfg(not(any(
+    target_os = "haiku",
+    target_os = "illumos",
+    target_os = "netbsd",
+    target_os = "redox",
+    target_os = "solaris",
+)))]
+fn join_leave_multicast_v4_n() {
+    let socket = Socket::new(Domain::IPV4, Type::DGRAM, None).unwrap();
+    let multiaddr = Ipv4Addr::new(224, 0, 1, 1);
+    let interface = socket2::InterfaceIndexOrAddress::Index(0);
+    match socket.leave_multicast_v4_n(&multiaddr, &interface) {
+        Ok(()) => panic!("leaving an unjoined group should fail"),
+        Err(err) => {
+            assert_eq!(err.kind(), io::ErrorKind::AddrNotAvailable);
+            #[cfg(unix)]
+            assert_eq!(err.raw_os_error(), Some(libc::EADDRNOTAVAIL));
+        }
+    };
+    let () = socket
+        .join_multicast_v4_n(&multiaddr, &interface)
+        .expect("join multicast group");
+    let () = socket
+        .leave_multicast_v4_n(&multiaddr, &interface)
+        .expect("leave multicast group");
+}
+
+#[test]
+#[cfg(all(feature = "all", not(target_os = "redox")))]
+fn header_included() {
+    let socket = match Socket::new(Domain::IPV4, Type::RAW, None) {
+        Ok(socket) => socket,
+        // Need certain permissions to create a raw sockets.
+        Err(ref err) if err.kind() == io::ErrorKind::PermissionDenied => return,
+        #[cfg(unix)]
+        Err(ref err) if err.raw_os_error() == Some(libc::EPROTONOSUPPORT) => return,
+        Err(err) => panic!("unexpected error creating socket: {}", err),
+    };
+
+    let initial = socket
+        .header_included()
+        .expect("failed to get initial value");
+    assert_eq!(initial, false, "initial value and argument are the same");
+
+    socket
+        .set_header_included(true)
+        .expect("failed to set option");
+    let got = socket.header_included().expect("failed to get value");
+    assert_eq!(got, true, "set and get values differ");
+}
