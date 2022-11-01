@@ -79,7 +79,7 @@ macro_rules! impl_debug {
             $(#[$target: meta])*
             // The flag(s) to check.
             // Need to specific the libc crate because Windows doesn't use
-            // `libc` but `winapi`.
+            // `libc` but `windows_sys`.
             $libc: ident :: $flag: ident
         ),+ $(,)*
     ) => {

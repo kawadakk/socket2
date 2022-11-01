@@ -40,11 +40,7 @@ use std::time::Duration;
 use std::{env, fs};
 
 #[cfg(windows)]
-use winapi::shared::minwindef::DWORD;
-#[cfg(windows)]
-use winapi::um::handleapi::GetHandleInformation;
-#[cfg(windows)]
-use winapi::um::winbase::HANDLE_FLAG_INHERIT;
+use windows_sys::Win32::Foundation::{GetHandleInformation, HANDLE_FLAG_INHERIT};
 
 #[cfg(not(target_os = "redox"))]
 use socket2::MaybeUninitSlice;
@@ -320,7 +316,7 @@ pub fn assert_flag_no_inherit<S>(socket: &S, want: bool)
 where
     S: AsRawSocket,
 {
-    let mut flags: DWORD = 0;
+    let mut flags = 0;
     if unsafe { GetHandleInformation(socket.as_raw_socket() as _, &mut flags) } == 0 {
         let err = io::Error::last_os_error();
         panic!("unexpected error: {}", err);
@@ -1172,6 +1168,17 @@ test!(IPv4 ttl, set_ttl(40));
     target_os = "illumos",
 )))]
 test!(IPv4 tos, set_tos(96));
+
+#[cfg(not(any(
+    target_os = "fuschia",
+    target_os = "illumos",
+    target_os = "netbsd",
+    target_os = "redox",
+    target_os = "solaris",
+    target_os = "windows",
+)))]
+test!(IPv4 recv_tos, set_recv_tos(true));
+
 #[cfg(not(windows))] // TODO: returns `WSAENOPROTOOPT` (10042) on Windows.
 test!(IPv4 broadcast, set_broadcast(true));
 
@@ -1217,6 +1224,22 @@ fn join_leave_multicast_v4_n() {
     let () = socket
         .leave_multicast_v4_n(&multiaddr, &interface)
         .expect("leave multicast group");
+}
+
+#[test]
+#[cfg(not(any(
+    target_os = "haiku",
+    target_os = "netbsd",
+    target_os = "redox",
+    target_os = "fuchsia",
+)))]
+fn join_leave_ssm_v4() {
+    let socket = Socket::new(Domain::IPV4, Type::DGRAM, None).unwrap();
+    let g = Ipv4Addr::new(232, 123, 52, 36);
+    let s = Ipv4Addr::new(62, 40, 109, 31);
+    let interface = Ipv4Addr::new(0, 0, 0, 0);
+    let () = socket.join_ssm_v4(&s, &g, &interface).expect("Joined SSM");
+    let () = socket.leave_ssm_v4(&s, &g, &interface).expect("Left SSM");
 }
 
 #[test]
