@@ -1047,8 +1047,19 @@ impl Socket {
     /// For more information about this option, see [`set_header_included`].
     ///
     /// [`set_header_included`]: Socket::set_header_included
-    #[cfg(all(feature = "all", not(target_os = "redox")))]
-    #[cfg_attr(docsrs, doc(all(feature = "all", not(target_os = "redox"))))]
+    #[cfg(all(
+        feature = "all",
+        not(target_os = "redox"),
+        not(target_os = "solid_asp3")
+    ))]
+    #[cfg_attr(
+        docsrs,
+        doc(all(
+            feature = "all",
+            not(target_os = "redox"),
+            not(target_os = "solid_asp3")
+        ))
+    )]
     pub fn header_included(&self) -> io::Result<bool> {
         unsafe {
             getsockopt::<c_int>(self.as_raw(), sys::IPPROTO_IP, sys::IP_HDRINCL)
@@ -1067,8 +1078,19 @@ impl Socket {
     /// [raw(7)]: https://man7.org/linux/man-pages/man7/raw.7.html
     /// [`IP_TTL`]: Socket::set_ttl
     /// [`IP_TOS`]: Socket::set_tos
-    #[cfg(all(feature = "all", not(target_os = "redox")))]
-    #[cfg_attr(docsrs, doc(all(feature = "all", not(target_os = "redox"))))]
+    #[cfg(all(
+        feature = "all",
+        not(target_os = "redox"),
+        not(target_os = "solid_asp3")
+    ))]
+    #[cfg_attr(
+        docsrs,
+        doc(all(
+            feature = "all",
+            not(target_os = "redox"),
+            not(target_os = "solid_asp3")
+        ))
+    )]
     pub fn set_header_included(&self, included: bool) -> io::Result<()> {
         unsafe {
             setsockopt(
