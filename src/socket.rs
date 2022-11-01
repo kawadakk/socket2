@@ -1252,6 +1252,7 @@ impl Socket {
         target_os = "netbsd",
         target_os = "redox",
         target_os = "fuchsia",
+        target_os = "solid_asp3",
     )))]
     pub fn join_ssm_v4(
         &self,
@@ -1284,6 +1285,7 @@ impl Socket {
         target_os = "netbsd",
         target_os = "redox",
         target_os = "fuchsia",
+        target_os = "solid_asp3",
     )))]
     pub fn leave_ssm_v4(
         &self,
