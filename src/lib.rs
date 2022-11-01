@@ -122,9 +122,7 @@ mod sockref;
 
 #[cfg_attr(unix, path = "sys/unix.rs")]
 #[cfg_attr(windows, path = "sys/windows.rs")]
-mod sys;
-#[cfg(target_os = "solid_asp3")]
-#[path = "sys/solid.rs"]
+#[cfg_attr(target_os = "solid_asp3", path = "sys/solid.rs")]
 mod sys;
 
 #[cfg(not(any(windows, unix, target_os = "solid_asp3")))]
