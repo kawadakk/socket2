@@ -37,6 +37,7 @@ pub const SOCK_STREAM: i32 = 1;
 pub const SOCK_RAW: i32 = 3;
 pub const SOL_SOCKET: i32 = 4095;
 pub const SO_BROADCAST: i32 = 32;
+pub const SO_ACCEPTCONN: i32 = 2;
 pub const SO_ERROR: i32 = 4103;
 pub const SO_RCVTIMEO: i32 = 4102;
 pub const SO_REUSEADDR: i32 = 4;

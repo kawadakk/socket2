@@ -207,8 +207,8 @@ impl Type {
     pub const DGRAM: Type = Type(sys::SOCK_DGRAM);
 
     /// Type corresponding to `SOCK_SEQPACKET`.
-    #[cfg(feature = "all")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "all")))]
+    #[cfg(all(feature = "all", not(target_os = "solid_asp3")))]
+    #[cfg_attr(docsrs, doc(cfg(all(feature = "all", not(target_os = "solid_asp3")))))]
     pub const SEQPACKET: Type = Type(sys::SOCK_SEQPACKET);
 
     /// Type corresponding to `SOCK_RAW`.

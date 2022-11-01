@@ -1699,14 +1699,24 @@ impl Socket {
         doc,
         all(
             feature = "all",
-            not(any(windows, target_os = "haiku", target_os = "openbsd"))
+            not(any(
+                windows,
+                target_os = "haiku",
+                target_os = "openbsd",
+                target_os = "solid_asp3"
+            ))
         )
     ))]
     #[cfg_attr(
         docsrs,
         doc(cfg(all(
             feature = "all",
-            not(any(windows, target_os = "haiku", target_os = "openbsd"))
+            not(any(
+                windows,
+                target_os = "haiku",
+                target_os = "openbsd",
+                target_os = "solid_asp3"
+            ))
         )))
     )]
     pub fn keepalive_time(&self) -> io::Result<Duration> {

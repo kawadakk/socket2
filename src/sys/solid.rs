@@ -11,12 +11,6 @@ use std::marker::PhantomData;
 use std::mem::{self, size_of, MaybeUninit};
 use std::net::Shutdown;
 use std::net::{Ipv4Addr, Ipv6Addr};
-#[cfg(feature = "all")]
-use std::num::NonZeroUsize;
-#[cfg(feature = "all")]
-use std::os::solid::ffi::OsStrExt;
-#[cfg(feature = "all")]
-use std::os::solid::io::RawFd;
 use std::os::solid::io::{AsRawFd, FromRawFd, IntoRawFd};
 use std::time::{Duration, Instant};
 use std::{io, slice};
@@ -36,8 +30,6 @@ pub(crate) use abi::{AF_INET, AF_INET6};
 // Used in `Type`.
 #[cfg(feature = "all")]
 pub(crate) use abi::SOCK_RAW;
-#[cfg(feature = "all")]
-pub(crate) use abi::SOCK_SEQPACKET;
 pub(crate) use abi::{SOCK_DGRAM, SOCK_STREAM};
 // Used in `Protocol`.
 pub(crate) use abi::{IPPROTO_ICMP, IPPROTO_ICMPV6, IPPROTO_TCP, IPPROTO_UDP};
@@ -56,9 +48,6 @@ pub(crate) use abi::{
     SO_RCVTIMEO, SO_REUSEADDR, SO_SNDBUF, SO_SNDTIMEO, SO_TYPE, TCP_NODELAY,
 };
 pub(crate) use abi::{IPV6_ADD_MEMBERSHIP, IPV6_DROP_MEMBERSHIP};
-
-#[cfg(all(feature = "all"))]
-pub(crate) use abi::{TCP_KEEPCNT, TCP_KEEPINTVL};
 
 // See this type in the Windows file.
 pub(crate) type Bool = c_int;
