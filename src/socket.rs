@@ -1191,6 +1191,7 @@ impl Socket {
         target_os = "netbsd",
         target_os = "redox",
         target_os = "solaris",
+        target_os = "solid_asp3",
     )))]
     pub fn join_multicast_v4_n(
         &self,
@@ -1219,6 +1220,7 @@ impl Socket {
         target_os = "netbsd",
         target_os = "redox",
         target_os = "solaris",
+        target_os = "solid_asp3",
     )))]
     pub fn leave_multicast_v4_n(
         &self,
