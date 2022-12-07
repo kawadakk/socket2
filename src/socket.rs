@@ -1,8 +1,8 @@
 // Copyright 2015 The Rust Project Developers.
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// https://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or https://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
@@ -1418,7 +1418,7 @@ impl Socket {
     /// NOTE: <https://docs.microsoft.com/en-us/windows/win32/winsock/ipproto-ip-socket-options>
     /// documents that not all versions of windows support `IP_TOS`.
     #[cfg(not(any(
-        target_os = "fuschia",
+        target_os = "fuchsia",
         target_os = "redox",
         target_os = "solaris",
         target_os = "illumos",
@@ -1436,7 +1436,7 @@ impl Socket {
     ///
     /// [`set_tos`]: Socket::set_tos
     #[cfg(not(any(
-        target_os = "fuschia",
+        target_os = "fuchsia",
         target_os = "redox",
         target_os = "solaris",
         target_os = "illumos",
@@ -1453,11 +1453,13 @@ impl Socket {
     /// incoming packets. It contains a byte which specifies the
     /// Type of Service/Precedence field of the packet header.
     #[cfg(not(any(
-        target_os = "fuschia",
+        target_os = "fuchsia",
         target_os = "illumos",
         target_os = "netbsd",
+        target_os = "openbsd",
         target_os = "redox",
         target_os = "solaris",
+        target_os = "windows",
         target_os = "solid_asp3",
     )))]
     pub fn set_recv_tos(&self, recv_tos: bool) -> io::Result<()> {
@@ -1479,11 +1481,13 @@ impl Socket {
     ///
     /// [`set_recv_tos`]: Socket::set_recv_tos
     #[cfg(not(any(
-        target_os = "fuschia",
+        target_os = "fuchsia",
         target_os = "illumos",
         target_os = "netbsd",
+        target_os = "openbsd",
         target_os = "redox",
         target_os = "solaris",
+        target_os = "windows",
         target_os = "solid_asp3",
     )))]
     pub fn recv_tos(&self) -> io::Result<bool> {

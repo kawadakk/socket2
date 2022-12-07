@@ -1,8 +1,8 @@
 // Copyright 2015 The Rust Project Developers.
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
-// http://www.apache.org/licenses/LICENSE-2.0> or the MIT license
-// <LICENSE-MIT or http://opensource.org/licenses/MIT>, at your
+// https://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+// <LICENSE-MIT or https://opensource.org/licenses/MIT>, at your
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
@@ -78,15 +78,16 @@ pub(crate) use libc::{MSG_TRUNC, SO_OOBINLINE};
 #[cfg(all(feature = "all", not(target_os = "redox")))]
 pub(crate) use libc::IP_HDRINCL;
 #[cfg(not(any(
-    target_os = "fuschia",
+    target_os = "fuchsia",
     target_os = "illumos",
     target_os = "netbsd",
+    target_os = "openbsd",
     target_os = "redox",
     target_os = "solaris",
 )))]
 pub(crate) use libc::IP_RECVTOS;
 #[cfg(not(any(
-    target_os = "fuschia",
+    target_os = "fuchsia",
     target_os = "redox",
     target_os = "solaris",
     target_os = "illumos",
@@ -174,7 +175,7 @@ macro_rules! syscall {
 
 /// Maximum size of a buffer passed to system call like `recv` and `send`.
 #[cfg(not(target_vendor = "apple"))]
-const MAX_BUF_LEN: usize = ssize_t::MAX as usize;
+const MAX_BUF_LEN: usize = <ssize_t>::max_value() as usize;
 
 // The maximum read limit on most posix-like systems is `SSIZE_MAX`, with the
 // man page quoting that if the count of bytes to read is greater than
@@ -185,7 +186,7 @@ const MAX_BUF_LEN: usize = ssize_t::MAX as usize;
 // than or equal to INT_MAX. To handle both of these the read size is capped on
 // both platforms.
 #[cfg(target_vendor = "apple")]
-const MAX_BUF_LEN: usize = c_int::MAX as usize - 1;
+const MAX_BUF_LEN: usize = <c_int>::max_value() as usize - 1;
 
 #[cfg(any(
     all(
@@ -622,7 +623,7 @@ pub(crate) fn poll_connect(socket: &crate::Socket, timeout: Duration) -> io::Res
         }
 
         let timeout = (timeout - elapsed).as_millis();
-        let timeout = clamp(timeout, 1, c_int::MAX as u128) as c_int;
+        let timeout = clamp(timeout, 1, c_int::max_value() as u128) as c_int;
 
         match syscall!(poll(&mut pollfd, 1, timeout)) {
             Ok(0) => return Err(io::ErrorKind::TimedOut.into()),
@@ -878,7 +879,7 @@ fn into_timeval(duration: Option<Duration>) -> libc::timeval {
         // https://github.com/rust-lang/libc/issues/1848
         #[cfg_attr(target_env = "musl", allow(deprecated))]
         Some(duration) => libc::timeval {
-            tv_sec: min(duration.as_secs(), libc::time_t::MAX as u64) as libc::time_t,
+            tv_sec: min(duration.as_secs(), libc::time_t::max_value() as u64) as libc::time_t,
             tv_usec: duration.subsec_micros() as libc::suseconds_t,
         },
         None => libc::timeval {
@@ -931,7 +932,7 @@ pub(crate) fn set_tcp_keepalive(fd: Socket, keepalive: &TcpKeepalive) -> io::Res
 
 #[cfg(not(any(target_os = "haiku", target_os = "openbsd")))]
 fn into_secs(duration: Duration) -> c_int {
-    min(duration.as_secs(), c_int::MAX as u64) as c_int
+    min(duration.as_secs(), c_int::max_value() as u64) as c_int
 }
 
 /// Add `flag` to the current set flags of `F_GETFD`.
