@@ -1174,9 +1174,11 @@ test!(IPv4 ttl, set_ttl(40));
 test!(IPv4 tos, set_tos(96));
 
 #[cfg(not(any(
+    target_os = "dragonfly",
     target_os = "fuchsia",
     target_os = "illumos",
     target_os = "netbsd",
+    target_os = "openbsd",
     target_os = "redox",
     target_os = "solaris",
     target_os = "windows",
@@ -1187,7 +1189,12 @@ test!(IPv4 recv_tos, set_recv_tos(true));
 test!(IPv4 broadcast, set_broadcast(true));
 
 test!(IPv6 unicast_hops_v6, set_unicast_hops_v6(20));
-#[cfg(not(any(windows, any(target_os = "dragonfly", target_os = "freebsd"))))]
+#[cfg(not(any(
+    windows,
+    target_os = "dragonfly",
+    target_os = "freebsd",
+    target_os = "openbsd"
+)))]
 test!(IPv6 only_v6, set_only_v6(true));
 // IPv6 socket are already IPv6 only on FreeBSD and Windows.
 #[cfg(any(windows, any(target_os = "freebsd")))]
@@ -1207,6 +1214,7 @@ test!(
     target_os = "haiku",
     target_os = "illumos",
     target_os = "netbsd",
+    target_os = "openbsd",
     target_os = "redox",
     target_os = "solaris",
 )))]
@@ -1232,8 +1240,10 @@ fn join_leave_multicast_v4_n() {
 
 #[test]
 #[cfg(not(any(
+    target_os = "dragonfly",
     target_os = "haiku",
     target_os = "netbsd",
+    target_os = "openbsd",
     target_os = "redox",
     target_os = "fuchsia",
 )))]

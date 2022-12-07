@@ -1248,8 +1248,10 @@ impl Socket {
     /// multicast group. If it's [`Ipv4Addr::UNSPECIFIED`] (`INADDR_ANY`) then
     /// an appropriate interface is chosen by the system.
     #[cfg(not(any(
+        target_os = "dragonfly",
         target_os = "haiku",
         target_os = "netbsd",
+        target_os = "openbsd",
         target_os = "redox",
         target_os = "fuchsia",
         target_os = "solid_asp3",
@@ -1281,8 +1283,10 @@ impl Socket {
     ///
     /// [`join_ssm_v4`]: Socket::join_ssm_v4
     #[cfg(not(any(
+        target_os = "dragonfly",
         target_os = "haiku",
         target_os = "netbsd",
+        target_os = "openbsd",
         target_os = "redox",
         target_os = "fuchsia",
         target_os = "solid_asp3",
@@ -1453,6 +1457,7 @@ impl Socket {
     /// incoming packets. It contains a byte which specifies the
     /// Type of Service/Precedence field of the packet header.
     #[cfg(not(any(
+        target_os = "dragonfly",
         target_os = "fuchsia",
         target_os = "illumos",
         target_os = "netbsd",
@@ -1481,6 +1486,7 @@ impl Socket {
     ///
     /// [`set_recv_tos`]: Socket::set_recv_tos
     #[cfg(not(any(
+        target_os = "dragonfly",
         target_os = "fuchsia",
         target_os = "illumos",
         target_os = "netbsd",
