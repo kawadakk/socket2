@@ -271,6 +271,12 @@ pub(crate) fn recv_from(
     }
 }
 
+pub(crate) fn peek_sender(fd: Socket) -> io::Result<SockAddr> {
+    // Unix-like platforms simply truncate the returned data, so this implementation is trivial.
+    let (_, sender) = recv_from(fd, &mut [], MSG_PEEK)?;
+    Ok(sender)
+}
+
 pub(crate) fn send(fd: Socket, buf: &[u8], flags: c_int) -> io::Result<usize> {
     syscall!(send(
         fd,
