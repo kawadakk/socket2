@@ -37,6 +37,9 @@ features = ["all"]
 [target."cfg(unix)".dependencies]
 libc = "0.2.141"
 
+[target."cfg(target_os = \"solid_asp3\")".dependencies]
+libc = "0.2.124"
+
 [target.'cfg(windows)'.dependencies.windows-sys]
 version = "0.48"
 features = [

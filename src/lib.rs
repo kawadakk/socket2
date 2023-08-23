@@ -57,6 +57,7 @@
 #![cfg_attr(test, deny(warnings))]
 // Disallow warnings in examples.
 #![doc(test(attr(deny(warnings))))]
+#![cfg_attr(target_os = "solid_asp3", feature(solid_ext))]
 
 use std::fmt;
 use std::mem::MaybeUninit;
@@ -101,7 +102,7 @@ macro_rules! from {
     ($from: ty, $for: ty) => {
         impl From<$from> for $for {
             fn from(socket: $from) -> $for {
-                #[cfg(unix)]
+                #[cfg(any(unix, target_os = "solid_asp3"))]
                 unsafe {
                     <$for>::from_raw_fd(socket.into_raw_fd())
                 }
@@ -170,9 +171,10 @@ mod sockref;
 
 #[cfg_attr(unix, path = "sys/unix.rs")]
 #[cfg_attr(windows, path = "sys/windows.rs")]
+#[cfg_attr(target_os = "solid_asp3", path = "sys/solid.rs")]
 mod sys;
 
-#[cfg(not(any(windows, unix)))]
+#[cfg(not(any(windows, unix, target_os = "solid_asp3")))]
 compile_error!("Socket2 doesn't support the compile target");
 
 use sys::c_int;
@@ -264,8 +266,8 @@ impl Type {
     pub const DCCP: Type = Type(sys::SOCK_DCCP);
 
     /// Type corresponding to `SOCK_SEQPACKET`.
-    #[cfg(feature = "all")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "all")))]
+    #[cfg(all(feature = "all", not(target_os = "solid_asp3")))]
+    #[cfg_attr(docsrs, doc(cfg(all(feature = "all", not(target_os = "solid_asp3")))))]
     pub const SEQPACKET: Type = Type(sys::SOCK_SEQPACKET);
 
     /// Type corresponding to `SOCK_RAW`.
@@ -350,12 +352,15 @@ impl From<Protocol> for c_int {
 /// Flags for incoming messages.
 ///
 /// Flags provide additional information about incoming messages.
-#[cfg(not(target_os = "redox"))]
-#[cfg_attr(docsrs, doc(cfg(not(target_os = "redox"))))]
+#[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
+#[cfg_attr(
+    docsrs,
+    doc(cfg(not(any(target_os = "redox", target_os = "solid_asp3"))))
+)]
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct RecvFlags(c_int);
 
-#[cfg(not(target_os = "redox"))]
+#[cfg(not(any(target_os = "redox", target_os = "solid_asp3")))]
 impl RecvFlags {
     /// Check if the message contains a truncated datagram.
     ///

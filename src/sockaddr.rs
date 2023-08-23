@@ -231,7 +231,7 @@ impl SockAddr {
                 ip,
                 port,
                 addr.sin6_flowinfo,
-                #[cfg(unix)]
+                #[cfg(any(unix, target_os = "solid_asp3"))]
                 addr.sin6_scope_id,
                 #[cfg(windows)]
                 unsafe {
@@ -324,6 +324,8 @@ impl From<SocketAddrV6> for SockAddr {
 impl fmt::Debug for SockAddr {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut f = fmt.debug_struct("SockAddr");
+        #[cfg(target_os = "solid_asp3")]
+        f.field("s2_len", &self.storage.s2_len);
         #[cfg(any(
             target_os = "dragonfly",
             target_os = "freebsd",

@@ -2,6 +2,8 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 use std::ops::Deref;
+#[cfg(target_os = "solid_asp3")]
+use std::os::solid::io::{AsRawFd, FromRawFd};
 #[cfg(unix)]
 use std::os::unix::io::{AsFd, AsRawFd, FromRawFd};
 #[cfg(windows)]
@@ -76,9 +78,9 @@ impl<'s> Deref for SockRef<'s> {
     }
 }
 
-/// On Windows, a corresponding `From<&impl AsSocket>` implementation exists.
-#[cfg(unix)]
-#[cfg_attr(docsrs, doc(cfg(unix)))]
+/// On Windows, a corresponding `From<&impl AsRawSocket>` implementation exists.
+#[cfg(any(unix, target_os = "solid_asp3"))]
+#[cfg_attr(docsrs, doc(cfg(any(unix, target_os = "solid_asp3"))))]
 impl<'s, S> From<&'s S> for SockRef<'s>
 where
     S: AsFd,
