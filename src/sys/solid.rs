@@ -12,6 +12,7 @@ use std::mem::{self, size_of, MaybeUninit};
 use std::net::Shutdown;
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::os::solid::io::{AsRawFd, FromRawFd, IntoRawFd};
+use std::path::Path;
 use std::time::{Duration, Instant};
 use std::{io, slice};
 
@@ -27,6 +28,11 @@ mod abi;
 
 // Used in `Domain`.
 pub(crate) use abi::{AF_INET, AF_INET6};
+/// A dummy value for the UNIX address family.
+///
+/// This value is distinct from all valid address families, and the creation of a
+/// socket of this type will fail.
+pub(crate) const AF_UNIX: c_int = 1;
 // Used in `Type`.
 #[cfg(feature = "all")]
 pub(crate) use abi::SOCK_RAW;
@@ -113,6 +119,13 @@ impl<'a> MaybeUninitSlice<'a> {
     pub(crate) fn as_mut_slice(&mut self) -> &mut [MaybeUninit<u8>] {
         unsafe { slice::from_raw_parts_mut(self.vec.iov_base.cast(), self.vec.iov_len) }
     }
+}
+
+pub(crate) fn unix_sockaddr(_path: &Path) -> io::Result<SockAddr> {
+    Err(io::Error::new(
+        io::ErrorKind::Unsupported.into(),
+        "UNIX address family is not supported by this platform",
+    ))
 }
 
 pub(crate) type Socket = c_int;
