@@ -11,7 +11,7 @@ use std::marker::PhantomData;
 use std::mem::{self, size_of, MaybeUninit};
 use std::net::Shutdown;
 use std::net::{Ipv4Addr, Ipv6Addr};
-use std::os::solid::io::{AsRawFd, FromRawFd, IntoRawFd};
+use std::os::solid::io::{AsFd, AsRawFd, BorrowedFd, FromRawFd, IntoRawFd, OwnedFd};
 use std::path::Path;
 use std::time::{Duration, Instant};
 use std::{io, slice};
@@ -469,15 +469,36 @@ impl crate::Socket {
     }
 }
 
+impl AsFd for crate::Socket {
+    fn as_fd(&self) -> BorrowedFd<'_> {
+        // SAFETY: lifetime is bound by self.
+        unsafe { BorrowedFd::borrow_raw(self.as_raw()) }
+    }
+}
+
 impl AsRawFd for crate::Socket {
     fn as_raw_fd(&self) -> c_int {
         self.as_raw()
     }
 }
 
+impl From<crate::Socket> for OwnedFd {
+    fn from(sock: crate::Socket) -> OwnedFd {
+        // SAFETY: sock.into_raw() always returns a valid fd.
+        unsafe { OwnedFd::from_raw_fd(sock.into_raw()) }
+    }
+}
+
 impl IntoRawFd for crate::Socket {
     fn into_raw_fd(self) -> c_int {
         self.into_raw()
+    }
+}
+
+impl From<OwnedFd> for crate::Socket {
+    fn from(fd: OwnedFd) -> crate::Socket {
+        // SAFETY: `OwnedFd` ensures the fd is valid.
+        unsafe { crate::Socket::from_raw_fd(fd.into_raw_fd()) }
     }
 }
 
