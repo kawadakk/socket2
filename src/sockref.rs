@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 use std::ops::Deref;
 #[cfg(target_os = "solid_asp3")]
-use std::os::solid::io::{AsRawFd, FromRawFd};
+use std::os::solid::io::{AsFd, AsRawFd, FromRawFd};
 #[cfg(unix)]
 use std::os::unix::io::{AsFd, AsRawFd, FromRawFd};
 #[cfg(windows)]
